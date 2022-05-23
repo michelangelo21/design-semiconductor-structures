@@ -4,104 +4,169 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ c179dc29-3720-4fa3-b005-ea80997c81da
+# ╔═╡ 47ce9be6-dac6-11ec-385a-352ff554663a
 using Plots
 
-# ╔═╡ 9fb46190-49bb-442e-a12e-538313bcf714
+# ╔═╡ 5bca5472-eeb8-44b8-95d3-34125e91b07f
 md"""
-# Zadanie 3
+# Zadanie 4
 ## Michał Łukomski 255552
 """
 
-# ╔═╡ 9dcac41a-9ec9-4f9b-9466-5730203101fa
+# ╔═╡ 2adebb08-ddbd-469a-8ed5-93e03b27182f
 import PlotlyJS
 
-# ╔═╡ 80f10f22-0897-44f3-b6b5-c1ea422e599e
+# ╔═╡ f3e78817-9c93-4a68-8ce6-29b0cddb9c0f
 plotlyjs()
 
-# ╔═╡ 69ba0eec-4c02-4b92-9b0f-67ec5ae4bb01
-interpolation(x, q_A, q_B, C=0) = x * q_A + (1 - x) * q_B + x * (1 - x) * C
-
-# ╔═╡ 35338046-53ea-4acd-90ee-0b4a7f58400f
-unknown_mass_CsSiI3 = 0.5 * (0.095 + 0.069)
-
-# ╔═╡ c5405dcb-945d-4bae-ba17-e89c509a6cf6
-CsPbI₃ = @NamedTuple{Eg, Δ, γ₁, γ₂, γ₃, mₕ, Ep, a, α}((
-    1.73, # Eg eV
-    1.44, # Δ
-    9.1, # γ₁
-    3.6, # γ₂
-    0.7, # γ₃
-    0.095, # mₕ
-    41.6, # Ep
-    6.238, # a
-    0.9, # α meV/K
-))
-
-# ╔═╡ b2802e63-85c7-4e2e-b756-f8ba8c095728
-CsSiI₃ = @NamedTuple{Eg, Δ, γ₁, γ₂, γ₃, mₕ, Ep, a, α}((
-    0.31, # Eg
-    0.50, # Δ
-    24.3, # γ₁
-    11.5, # γ₂
-    8.1, # γ₃
-    unknown_mass_CsSiI3, # mₕ
-    18.9, # Ep
-    5.892, # a
-    0.1, # α meV/K
-))
-
-# ╔═╡ e3d3eb0d-0e9e-4efe-9307-fa63e11e9f77
-CsPbₓSi₁₋ₓI₃(x, C=0) = @NamedTuple{Eg, Δ, γ₁, γ₂, γ₃, mₕ, Ep, a, α}(
-    interpolation.(x, collect(CsPbI₃), collect(CsSiI₃), C)
-)
-
-# ╔═╡ 47cec977-361b-4b39-8624-392dbd2c9ba3
-x = 0.5
-
-# ╔═╡ 63e6db24-98e1-4401-9c75-5c82d7ad09c8
-material = CsPbₓSi₁₋ₓI₃(x)
-
-# ╔═╡ 57d7554f-1b00-4075-ae77-490fe4e15981
-Eg(T, mat) = mat.Eg + mat.α * 1e-3 * T
-
-# ╔═╡ ff6cf607-4f50-41f9-b1a0-d3144af9956b
-VB₀ = 0.0 # eV
-
-# ╔═╡ 37b26457-1209-445c-a896-0dde15fe2a3c
-VB(T, mat) = VB₀
-
-# ╔═╡ c92dc4c4-71d3-406e-89eb-141d293cc760
-CS(T, mat) = VB₀ + Eg(T, mat)
-
-# ╔═╡ afe94ae6-b5cb-49b3-8bb2-fd6c171ab96b
-CH(T, mat) = VB₀ + Eg(T, mat) + mat.Δ
-
-# ╔═╡ 3181be83-1dd9-4f01-a2b1-f5b12ed83595
-CL(T, mat) = CH(T, mat)
-
-# ╔═╡ 0d643817-f336-4396-b931-2845936d95d6
-Ts = 250:350 # K
-
-# ╔═╡ d25b21d2-7d39-4971-b0aa-e0196fb28488
-plot(Ts, T->Eg(T,material), label="Eg",
-	xlabel="Temperature [K]",
-	ylabel="Energy [eV]",
-	title="Energy gap"
-)
-
-# ╔═╡ 84119a7f-43f3-446c-a633-fa517043191a
+# ╔═╡ 0c10d462-cdca-4a16-85a6-4b4230dc7df8
 begin
-	plot(Ts, T -> VB(T, material), label="VB",
-	    xlabel="Temperature [K]",
-	    ylabel="Energy [eV]",
-		title="At R"
-	)
-	# plot(Ts, VB.(Ts, Ref(material)))
-	plot!(Ts, T -> CS(T, material), label="CS")
-	plot!(Ts, T -> CH(T, material), label="CH")
-	plot!(Ts, T -> CL(T, material), label="CL", linestyle=:dash)
+	interpolation(x, q_A, q_B, C=0) = x * q_A + (1 - x) * q_B + x * (1 - x) * C
+	
+	function interpolation(x, q_A::Dict, q_B::Dict, C=0)
+	    @assert keys(q_A) == keys(q_B)
+	    res = Dict()
+	    for (key, v_A) in q_A
+	        v_B = q_B[key]
+	        res[key] = interpolation(x, v_A, v_B, C)
+	    end
+	    return res
+	end
 end
+
+# ╔═╡ 438d8945-de70-47f6-993d-b04e673c8037
+begin
+	unknown_mass_CsSiI3 = 0.5 * (0.095 + 0.069)
+	CsPbI₃ = Dict(zip(["Eg", "Δ", "γ₁", "γ₂", "γ₃", "mₕ", "Ep", "a", "α"], [
+	    1.73, # Eg eV
+	    1.44, # Δ
+	    9.1, # γ₁
+	    3.6, # γ₂
+	    0.7, # γ₃
+	    0.095, # mₕ
+	    41.6, # Ep
+	    6.238, # a
+	    0.9, # α meV/K
+	]))
+	
+	CsSiI₃ = Dict(zip(["Eg", "Δ", "γ₁", "γ₂", "γ₃", "mₕ", "Ep", "a", "α"], [
+	    0.31, # Eg
+	    0.50, # Δ
+	    24.3, # γ₁
+	    11.5, # γ₂
+	    8.1, # γ₃
+	    unknown_mass_CsSiI3, # mₕ
+	    18.9, # Ep
+	    5.892, # a
+	    0.1, # α meV/K
+	]))
+end
+
+# ╔═╡ efe9e165-8c55-4790-abc1-1f25e7130f93
+begin
+	# https://www.sciencedirect.com/science/article/pii/S003040261631021X?casa_token=o33T8v5jN3QAAAAA:I8IBYsFMKtk-aXxKz1GThGbgQfDKschBqnRRVHBQsx-ikcQH4iS-iVlYZ3DO8YZtA5JtWPR9eBo
+	CsPbI₃["c₁₁"] = 34.405 # GPa 
+	CsPbI₃["c₁₂"] = 4.709 # GPa
+	
+	CsPbI₃["aᵛ"] = -2.762 # eV
+	CsPbI₃["aᶜ"] = -0.177 # eV
+	
+	# CsSiI₃[val] = 1/3 ( CsPbI₃ + CsSnI₃ + CsGeI₃)
+	# https://www.worldscientific.com/doi/abs/10.1142/S0217984921500561 - CsSiI₃
+	# https://www.mdpi.com/2076-3417/10/15/5055 - CsGeI₃
+	CsSiI₃["c₁₁"] = (CsPbI₃["c₁₁"] + 41.31 + 60.07) / 3
+	CsSiI₃["c₁₂"] = (CsPbI₃["c₁₂"] + 3.69 + 48.61) / 3
+	
+	CsSiI₃["aᵛ"] = (CsPbI₃["aᵛ"] + -3.651 + -2.257) / 3
+	CsSiI₃["aᶜ"] = (CsPbI₃["aᶜ"] + -0.052 + 0.971) / 3
+	
+end
+
+# ╔═╡ 8a624a4f-a19b-43e3-8426-10d38125b35a
+function plot_energy_diagram_AB(x, percentage)
+    b = -2 # like GaAs
+    T = 300 # K
+
+    mat_B = interpolation(x, CsPbI₃, CsSiI₃)
+    mat_B["EgT"] = mat_B["Eg"] + mat_B["α"] * 1e-3 * T
+
+    a_A = mat_B["a"] * (1 + percentage)
+    ϵₓₓ = (a_A - mat_B["a"]) / mat_B["a"]
+
+    δE_Hⱽ = 2 * mat_B["aᵛ"] * (1 - mat_B["c₁₂"] / mat_B["c₁₁"]) * ϵₓₓ
+    δE_Hᶜ = 2 * mat_B["aᶜ"] * (1 - mat_B["c₁₂"] / mat_B["c₁₁"]) * ϵₓₓ
+    δE_S = b * (1 + mat_B["c₁₂"] / mat_B["c₁₁"]) * ϵₓₓ
+
+    VBO_A = 0 # eV
+    VBO_B = 1 # eV
+    Eg_A = VBO_B + mat_B["Eg"] + 3 # eV
+
+    VB_B = VBO_B
+    CS_B = VBO_B + mat_B["EgT"]
+    CH_B = VBO_B + mat_B["EgT"] + mat_B["Δ"]
+    CL_B = CH_B
+
+    VB_A = VBO_A
+    CS_A = VBO_A + Eg_A
+
+    E_VB = VB_B .+ δE_Hⱽ
+    E_CS = CS_B .+ δE_Hᶜ
+    E_CH = CH_B .+ δE_Hᶜ .+ δE_S
+    E_CL = CL_B .+ δE_Hᶜ .- δE_S
+
+    d = 50 # nm
+    X_A = vcat(-d:0, d:2d)
+    X_B = 0:d
+
+    fig = plot(-d:0, ones(d + 1) * VB_A, color=:blue, label="E_A_VB")
+    plot!(fig, d:2d, ones(d + 1) * VB_A, color=:blue, label=:none)
+
+    plot!(fig, -d:0, ones(d + 1) * CS_A, color=:orange, label="E_A_CS")
+    plot!(fig, d:2d, ones(d + 1) * CS_A, color=:orange, label=:none)
+
+    plot!(fig, 0:d, ones(d + 1) * E_VB, label="E_B_VB")
+    plot!(fig, 0:d, ones(d + 1) * E_CS, label="E_B_CS")
+    plot!(fig, 0:d, ones(d + 1) * E_CH, label="E_B_CH", linestyle=:dot)
+    plot!(fig, 0:d, ones(d + 1) * E_CL, label="E_B_CL", linestyle=:dash)
+
+    title!(fig, "CsPbₓSi₁₋ₓI₃, x=$x, a_A=$(round(a_A,digits=3)), ϵₓₓ=$(round(ϵₓₓ*100,digits=3))%")
+    xlabel!(fig, "[nm]")
+    ylabel!(fig, "E [eV]")
+    return fig
+end
+
+# ╔═╡ 4ecf10d6-43e1-4772-9f54-3168c33ebcc3
+md"
+### Wykresy
+"
+
+# ╔═╡ 027129b5-83aa-438a-b55a-41c001af20c3
+md"
+#### x = 0.8
+"
+
+# ╔═╡ 7767901c-30e0-4bae-b1df-f65ee16eab3f
+plot_energy_diagram_AB(0.8, 0.03)
+
+# ╔═╡ 66f2c5bb-eeb7-4dae-9026-20c046931320
+plot_energy_diagram_AB(0.8, 0.0)
+
+# ╔═╡ b65f5985-75e5-4f2d-afdf-24b5534450b4
+plot_energy_diagram_AB(0.8, -0.03)
+
+# ╔═╡ 29327e46-672f-41de-9c07-ee7b7b9cdd1d
+md"
+#### x = 0.2
+"
+
+# ╔═╡ 9ba76081-7f6a-48fa-8615-efd44eba2937
+plot_energy_diagram_AB(0.2, 0.03)
+
+# ╔═╡ b3359d32-2497-4291-98d0-36333ce1df8d
+plot_energy_diagram_AB(0.2, 0.0)
+
+# ╔═╡ 084c4bfb-ae76-4922-b240-a201cad6503d
+plot_energy_diagram_AB(0.2, -0.03)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -168,15 +233,15 @@ version = "1.16.1+1"
 
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
-git-tree-sha1 = "9950387274246d08af38f6eef8cb5480862a435f"
+git-tree-sha1 = "9489214b993cd42d17f44c36e359bf6a7c919abf"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "1.14.0"
+version = "1.15.0"
 
 [[deps.ChangesOfVariables]]
 deps = ["ChainRulesCore", "LinearAlgebra", "Test"]
-git-tree-sha1 = "bf98fa45a0a4cee295de98d4c1462be26345b9a1"
+git-tree-sha1 = "1e315e3f4b0b7ce40feded39c73049692126cf53"
 uuid = "9e997f8a-9a97-42d5-a9f1-ce6bfc15e2c0"
-version = "0.1.2"
+version = "0.1.3"
 
 [[deps.ColorSchemes]]
 deps = ["ColorTypes", "ColorVectorSpace", "Colors", "FixedPointNumbers", "Random"]
@@ -186,15 +251,15 @@ version = "3.18.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
-git-tree-sha1 = "024fe24d83e4a5bf5fc80501a314ce0d1aa35597"
+git-tree-sha1 = "a985dc37e357a3b22b260a5def99f3530fb415d3"
 uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
-version = "0.11.0"
+version = "0.11.2"
 
 [[deps.ColorVectorSpace]]
 deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "SpecialFunctions", "Statistics", "TensorCore"]
-git-tree-sha1 = "3f1f500312161f1ae067abe07d13b40f78f32e07"
+git-tree-sha1 = "d08c20eef1f2cbc6e60fd3612ac4340b89fea322"
 uuid = "c3611d14-8923-5661-9e6a-0046d554d3a4"
-version = "0.9.8"
+version = "0.9.9"
 
 [[deps.Colors]]
 deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
@@ -327,15 +392,15 @@ version = "3.3.6+0"
 
 [[deps.GR]]
 deps = ["Base64", "DelimitedFiles", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Pkg", "Printf", "Random", "RelocatableFolders", "Serialization", "Sockets", "Test", "UUIDs"]
-git-tree-sha1 = "af237c08bda486b74318c8070adb96efa6952530"
+git-tree-sha1 = "b316fd18f5bc025fedcb708332aecb3e13b9b453"
 uuid = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
-version = "0.64.2"
+version = "0.64.3"
 
 [[deps.GR_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Cairo_jll", "FFMPEG_jll", "Fontconfig_jll", "GLFW_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pixman_jll", "Pkg", "Qt5Base_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "cd6efcf9dc746b06709df14e462f0a3fe0786b1e"
+git-tree-sha1 = "1e5490a51b4e9d07e8b04836f6008f46b48aaa87"
 uuid = "d2c73de3-f751-5644-a686-071e5b155ba9"
-version = "0.64.2+0"
+version = "0.64.3+0"
 
 [[deps.GeometryBasics]]
 deps = ["EarCut_jll", "IterTools", "LinearAlgebra", "StaticArrays", "StructArrays", "Tables"]
@@ -395,9 +460,9 @@ uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
 [[deps.InverseFunctions]]
 deps = ["Test"]
-git-tree-sha1 = "91b5dcf362c5add98049e6c29ee756910b03051d"
+git-tree-sha1 = "336cc738f03e069ef2cac55a104eb823455dca75"
 uuid = "3587e190-3f89-42d0-90ee-14403ec27112"
-version = "0.1.3"
+version = "0.1.4"
 
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "7fd44fd4ff43fc60815f8e764c0f352b83c49151"
@@ -552,9 +617,9 @@ uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[deps.LogExpFunctions]]
 deps = ["ChainRulesCore", "ChangesOfVariables", "DocStringExtensions", "InverseFunctions", "IrrationalConstants", "LinearAlgebra"]
-git-tree-sha1 = "76c987446e8d555677f064aaac1145c4c17662f8"
+git-tree-sha1 = "09e4b894ce6a976c354a69041a04748180d43637"
 uuid = "2ab3a3ac-af41-5b50-aa03-7779005ae688"
-version = "0.3.14"
+version = "0.3.15"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
@@ -811,9 +876,9 @@ uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [[deps.SpecialFunctions]]
 deps = ["ChainRulesCore", "IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
-git-tree-sha1 = "5ba658aeecaaf96923dce0da9e703bd1fe7666f9"
+git-tree-sha1 = "bc40f042cfcc56230f781d92db71f0e21496dffd"
 uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
-version = "2.1.4"
+version = "2.1.5"
 
 [[deps.StaticArrays]]
 deps = ["LinearAlgebra", "Random", "Statistics"]
@@ -933,9 +998,9 @@ version = "1.5.9"
 
 [[deps.Widgets]]
 deps = ["Colors", "Dates", "Observables", "OrderedCollections"]
-git-tree-sha1 = "505c31f585405fc375d99d02588f6ceaba791241"
+git-tree-sha1 = "fcdae142c1cfc7d89de2d11e08721d0f2f86c98a"
 uuid = "cc8bc4a8-27d6-5769-a93b-9d913e69aa62"
-version = "0.6.5"
+version = "0.6.6"
 
 [[deps.XML2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "Zlib_jll"]
@@ -1141,25 +1206,22 @@ version = "0.9.1+5"
 """
 
 # ╔═╡ Cell order:
-# ╠═9fb46190-49bb-442e-a12e-538313bcf714
-# ╠═c179dc29-3720-4fa3-b005-ea80997c81da
-# ╠═9dcac41a-9ec9-4f9b-9466-5730203101fa
-# ╠═80f10f22-0897-44f3-b6b5-c1ea422e599e
-# ╠═69ba0eec-4c02-4b92-9b0f-67ec5ae4bb01
-# ╠═35338046-53ea-4acd-90ee-0b4a7f58400f
-# ╠═c5405dcb-945d-4bae-ba17-e89c509a6cf6
-# ╠═b2802e63-85c7-4e2e-b756-f8ba8c095728
-# ╠═e3d3eb0d-0e9e-4efe-9307-fa63e11e9f77
-# ╠═47cec977-361b-4b39-8624-392dbd2c9ba3
-# ╠═63e6db24-98e1-4401-9c75-5c82d7ad09c8
-# ╠═57d7554f-1b00-4075-ae77-490fe4e15981
-# ╠═ff6cf607-4f50-41f9-b1a0-d3144af9956b
-# ╠═37b26457-1209-445c-a896-0dde15fe2a3c
-# ╠═c92dc4c4-71d3-406e-89eb-141d293cc760
-# ╠═afe94ae6-b5cb-49b3-8bb2-fd6c171ab96b
-# ╠═3181be83-1dd9-4f01-a2b1-f5b12ed83595
-# ╠═0d643817-f336-4396-b931-2845936d95d6
-# ╠═d25b21d2-7d39-4971-b0aa-e0196fb28488
-# ╠═84119a7f-43f3-446c-a633-fa517043191a
+# ╟─5bca5472-eeb8-44b8-95d3-34125e91b07f
+# ╟─47ce9be6-dac6-11ec-385a-352ff554663a
+# ╟─2adebb08-ddbd-469a-8ed5-93e03b27182f
+# ╟─f3e78817-9c93-4a68-8ce6-29b0cddb9c0f
+# ╠═0c10d462-cdca-4a16-85a6-4b4230dc7df8
+# ╠═438d8945-de70-47f6-993d-b04e673c8037
+# ╠═efe9e165-8c55-4790-abc1-1f25e7130f93
+# ╠═8a624a4f-a19b-43e3-8426-10d38125b35a
+# ╟─4ecf10d6-43e1-4772-9f54-3168c33ebcc3
+# ╟─027129b5-83aa-438a-b55a-41c001af20c3
+# ╠═7767901c-30e0-4bae-b1df-f65ee16eab3f
+# ╠═66f2c5bb-eeb7-4dae-9026-20c046931320
+# ╠═b65f5985-75e5-4f2d-afdf-24b5534450b4
+# ╟─29327e46-672f-41de-9c07-ee7b7b9cdd1d
+# ╠═9ba76081-7f6a-48fa-8615-efd44eba2937
+# ╠═b3359d32-2497-4291-98d0-36333ce1df8d
+# ╠═084c4bfb-ae76-4922-b240-a201cad6503d
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
