@@ -91,16 +91,16 @@ function plot_energy_diagram_AB(x, percentage)
     X_A = vcat(-d:0, d:2d)
     X_B = 0:d
 
-    fig = plot(-d:0, ones(d + 1) * VB_A, color=:blue, label="E_A_VB")
-    plot!(fig, d:2d, ones(d + 1) * VB_A, color=:blue, label=:none)
+    fig = plot([-d:0; 0], [ones(d+1) * VB_A; E_VB], color=:blue, label="E_A_VB")
+    plot!(fig, [d; d:2d], [E_VB; ones(d+1) * VB_A], color=:blue, label=:none)
 
-    plot!(fig, -d:0, ones(d + 1) * CS_A, color=:orange, label="E_A_CS")
-    plot!(fig, d:2d, ones(d + 1) * CS_A, color=:orange, label=:none)
+    plot!(fig, [-d:0; 0], [ones(d + 1) * CS_A; E_CS], color=:orange, label="E_A_CS")
+    plot!(fig, [d; d:2d], [E_CS; ones(d + 1) * CS_A], color=:orange, label=:none)
 
-    plot!(fig, 0:d, ones(d + 1) * E_VB, label="E_B_VB")
-    plot!(fig, 0:d, ones(d + 1) * E_CS, label="E_B_CS")
-    plot!(fig, 0:d, ones(d + 1) * E_CH, label="E_B_CH", linestyle=:dot)
-    plot!(fig, 0:d, ones(d + 1) * E_CL, label="E_B_CL", linestyle=:dash)
+    plot!(fig, 0:d, ones(d + 1) * E_VB, label="E_B_VB", color=:blue, linestyle=:dash)
+    plot!(fig, 0:d, ones(d + 1) * E_CS, label="E_B_CS", color=:orange, linestyle=:dash)
+    plot!(fig, 0:d, ones(d + 1) * E_CH, label="E_B_CH", color=:red, linestyle=:dot)
+    plot!(fig, 0:d, ones(d + 1) * E_CL, label="E_B_CL", color=:green, linestyle=:dash)
 
     title!(fig, "CsPbₓSi₁₋ₓI₃, x=$x, a_A=$(round(a_A,digits=3)), ϵₓₓ=$(round(ϵₓₓ*100,digits=3))%")
     xlabel!(fig, "[nm]")

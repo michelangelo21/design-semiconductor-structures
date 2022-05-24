@@ -17,7 +17,7 @@ md"""
 import PlotlyJS
 
 # ╔═╡ f3e78817-9c93-4a68-8ce6-29b0cddb9c0f
-plotlyjs()
+plotlyjs();
 
 # ╔═╡ 0c10d462-cdca-4a16-85a6-4b4230dc7df8
 begin
@@ -32,7 +32,7 @@ begin
 	    end
 	    return res
 	end
-end
+end;
 
 # ╔═╡ 438d8945-de70-47f6-993d-b04e673c8037
 begin
@@ -60,7 +60,7 @@ begin
 	    5.892, # a
 	    0.1, # α meV/K
 	]))
-end
+end;
 
 # ╔═╡ efe9e165-8c55-4790-abc1-1f25e7130f93
 begin
@@ -80,7 +80,7 @@ begin
 	CsSiI₃["aᵛ"] = (CsPbI₃["aᵛ"] + -3.651 + -2.257) / 3
 	CsSiI₃["aᶜ"] = (CsPbI₃["aᶜ"] + -0.052 + 0.971) / 3
 	
-end
+end;
 
 # ╔═╡ 8a624a4f-a19b-43e3-8426-10d38125b35a
 function plot_energy_diagram_AB(x, percentage)
@@ -118,22 +118,22 @@ function plot_energy_diagram_AB(x, percentage)
     X_A = vcat(-d:0, d:2d)
     X_B = 0:d
 
-    fig = plot(-d:0, ones(d + 1) * VB_A, color=:blue, label="E_A_VB")
-    plot!(fig, d:2d, ones(d + 1) * VB_A, color=:blue, label=:none)
+    fig = plot([-d:0; 0], [ones(d+1) * VB_A; E_VB], color=:blue, label="E_A_VB")
+    plot!(fig, [d; d:2d], [E_VB; ones(d+1) * VB_A], color=:blue, label=:none)
 
-    plot!(fig, -d:0, ones(d + 1) * CS_A, color=:orange, label="E_A_CS")
-    plot!(fig, d:2d, ones(d + 1) * CS_A, color=:orange, label=:none)
+    plot!(fig, [-d:0; 0], [ones(d + 1) * CS_A; E_CS], color=:orange, label="E_A_CS")
+    plot!(fig, [d; d:2d], [E_CS; ones(d + 1) * CS_A], color=:orange, label=:none)
 
-    plot!(fig, 0:d, ones(d + 1) * E_VB, label="E_B_VB")
-    plot!(fig, 0:d, ones(d + 1) * E_CS, label="E_B_CS")
-    plot!(fig, 0:d, ones(d + 1) * E_CH, label="E_B_CH", linestyle=:dot)
-    plot!(fig, 0:d, ones(d + 1) * E_CL, label="E_B_CL", linestyle=:dash)
+    plot!(fig, 0:d, ones(d + 1) * E_VB, label="E_B_VB", color=:blue, linestyle=:dash)
+    plot!(fig, 0:d, ones(d + 1) * E_CS, label="E_B_CS", color=:orange, linestyle=:dash)
+    plot!(fig, 0:d, ones(d + 1) * E_CH, label="E_B_CH", color=:red, linestyle=:dot)
+    plot!(fig, 0:d, ones(d + 1) * E_CL, label="E_B_CL", color=:green, linestyle=:dash)
 
     title!(fig, "CsPbₓSi₁₋ₓI₃, x=$x, a_A=$(round(a_A,digits=3)), ϵₓₓ=$(round(ϵₓₓ*100,digits=3))%")
     xlabel!(fig, "[nm]")
     ylabel!(fig, "E [eV]")
     return fig
-end
+end;
 
 # ╔═╡ 4ecf10d6-43e1-4772-9f54-3168c33ebcc3
 md"
